@@ -1,6 +1,7 @@
 package br.com.iot.securityhouse;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
@@ -9,6 +10,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.amazonaws.ClientConfiguration;
@@ -37,8 +40,10 @@ import java.nio.file.Path;
 public class MainActivity extends AppCompatActivity {
 
     private static final String PATH = Environment.getExternalStorageDirectory().getPath() + "/image.png";
+    private final Activity activity = this;
 
     ImageView ivResult;
+    Button btAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ivResult = findViewById(R.id.ivResult);
+        btAction = findViewById(R.id.action);
 
         mqtt();
     }
@@ -136,12 +142,12 @@ public class MainActivity extends AppCompatActivity {
                                 return new AWSCredentials() {
                                     @Override
                                     public String getAWSAccessKeyId() {
-                                        return ""; // access key
+                                        return "AKIAJXNAESFMTGWY37OA"; // access key
                                     }
 
                                     @Override
                                     public String getAWSSecretKey() {
-                                        return ""; //secret key
+                                        return "mpwcuOUT20bjb+OHLqPyShCHatpwpxJPtiwcAqDe"; //secret key
                                     }
                                 };
                             }
@@ -178,6 +184,13 @@ public class MainActivity extends AppCompatActivity {
             public void onStateChanged(int id, TransferState state) {
                 if (TransferState.COMPLETED == state) {
                     Picasso.get().load(new File(PATH)).into(ivResult);
+                    btAction.setVisibility(View.VISIBLE);
+                    btAction.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            CallUtil.checkPermissionPhoneCall(activity,"190");
+                        }
+                    });
                 }
             }
 
@@ -200,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
         // listener, check for the state and progress in the observer.
         if (TransferState.COMPLETED == downloadObserver.getState()) {
             Picasso.get().load(new File(PATH)).into(ivResult);
+            btAction.setVisibility(View.VISIBLE);
         }
 
         Log.d("Your Activity", "Bytes Transferred: " + downloadObserver.getBytesTransferred());
